@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -38,9 +39,8 @@ public class PlayerMovement : MonoBehaviour
         // Part of  minor mod (freezing from fear.) -Emily
         isPanicking = false;
         fightPanic = 0;
-        //panicCanvas.SetActive(false);
         panicText.SetActive(false);
-        speedIcon.SetActive(false);
+        speedIcon.GetComponent<Image>().color = Color.black;
         float panicTime = Random.Range(15, 20);
         InvokeRepeating("StartPanic", panicTime, panicTime);
     }
@@ -128,13 +128,18 @@ public class PlayerMovement : MonoBehaviour
     IEnumerator SpeedPowerDown() 
     {
         onCooldown = true;
-        speedIcon.SetActive(true);
+        //speedIcon.SetActive(true);
+        speedIcon.GetComponent<Image>().color = Color.white;
         yield return new WaitForSeconds(speedDuration);
+
+        speedIcon.GetComponent<Image>().color = Color.black;
         speedIcon.SetActive(false);
         walkSpeed = 1f;
+        turnSpeed = 20f;
         yield return new WaitForSeconds(speedCooldown);
         onCooldown = false;
-        
+        speedIcon.SetActive(true);
+
     }
 
     //The below Sections are for speed boost implementation
@@ -142,10 +147,11 @@ public class PlayerMovement : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.LeftShift) && onCooldown == false)
         {
-            walkSpeed = 3f;
+            walkSpeed = 4f;
+            turnSpeed = 30f;
             StartCoroutine(SpeedPowerDown());
         }
-        
+
     }
 
     // Below is part of the door & key stuff. I couldn't get this working, don't know why.
