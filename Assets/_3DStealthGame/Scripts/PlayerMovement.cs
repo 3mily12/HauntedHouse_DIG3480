@@ -13,11 +13,16 @@ public class PlayerMovement : MonoBehaviour
 
     public float walkSpeed = 1.0f;
     public float turnSpeed = 20f;
+    public float speedDuration = 2.0f;
+    public float speedCooldown = 4.0f;
 
     // Part of  minor mod (freezing from fear.) -Emily
     public bool isPanicking;
+    public bool onCooldown;
     public int fightPanic; 
-    public GameObject panicCanvas; 
+    //public GameObject panicCanvas;
+    public GameObject panicText;
+    public GameObject speedIcon;
 
     Rigidbody m_Rigidbody;
     Vector3 m_Movement;
@@ -33,7 +38,9 @@ public class PlayerMovement : MonoBehaviour
         // Part of  minor mod (freezing from fear.) -Emily
         isPanicking = false;
         fightPanic = 0;
-        panicCanvas.SetActive(false);
+        //panicCanvas.SetActive(false);
+        panicText.SetActive(false);
+        speedIcon.SetActive(false);
         float panicTime = Random.Range(15, 20);
         InvokeRepeating("StartPanic", panicTime, panicTime);
     }
@@ -55,10 +62,13 @@ public class PlayerMovement : MonoBehaviour
         bool isWalking = hasHorizontalInput || hasVeritalInput;
         m_Animator.SetBool("IsWalking", isWalking);
 
+        SpeedBoost();
+
         if (isPanicking == true) // (all of this) is part of  minor mod (freezing from fear.) -Emily
         {
             Debug.Log("Too scared!");
-            panicCanvas.SetActive(true);
+            //panicCanvas.SetActive(true);
+            panicText.SetActive(true);
             isWalking = false;
 
             if (m_AudioSource.isPlaying) {
@@ -80,7 +90,8 @@ public class PlayerMovement : MonoBehaviour
         }
         else 
         {
-            panicCanvas.SetActive(false);
+            //panicCanvas.SetActive(false);
+            panicText.SetActive(false);
 
             // Original walk script below
             Vector3 desiredForward = Vector3.RotateTowards(transform.forward, m_Movement, turnSpeed * Time.deltaTime, 0f);
@@ -112,6 +123,29 @@ public class PlayerMovement : MonoBehaviour
         else {
             Debug.Log("Already Panicking!");
         }
+    }
+
+    IEnumerator SpeedPowerDown() 
+    {
+        onCooldown = true;
+        speedIcon.SetActive(true);
+        yield return new WaitForSeconds(speedDuration);
+        speedIcon.SetActive(false);
+        walkSpeed = 1f;
+        yield return new WaitForSeconds(speedCooldown);
+        onCooldown = false;
+        
+    }
+
+    //The below Sections are for speed boost implementation
+    private void SpeedBoost() 
+    {
+        if (Input.GetKey(KeyCode.LeftShift) && onCooldown == false)
+        {
+            walkSpeed = 3f;
+            StartCoroutine(SpeedPowerDown());
+        }
+        
     }
 
     // Below is part of the door & key stuff. I couldn't get this working, don't know why.
