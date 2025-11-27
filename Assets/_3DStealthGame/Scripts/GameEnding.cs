@@ -65,7 +65,7 @@ public class GameEnding : MonoBehaviour
         {
             if (doRestart)
             {
-                SceneManager.LoadScene("Main");
+                SceneManager.LoadScene("Main"); //either change this to "Jacob's Scene" or merge the scenes.
             }
             else
             {
